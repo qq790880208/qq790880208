@@ -1,12 +1,18 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
+    <div
+      style="color: red"
+      href="https://cli.vuejs.org"
+      target="_blank"
+      rel="noopener"
+      @click="handleClick"
+    >
+      vue-cli documentation
+    </div>
     <p>
       For a guide and recipes on how to configure / customize this project,<br />
       check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener"
-        >vue-cli documentation</a
-      >.
     </p>
     <h3>Installed CLI Plugins</h3>
     <ul>
@@ -119,16 +125,44 @@
 </template>
 
 <script lang="ts">
-import { Options, Vue } from "vue-class-component";
-
-@Options({
-  props: {
-    msg: String,
+export default {
+  data() {
+    return {
+      msg: "test",
+    };
   },
-})
-export default class HelloWorld extends Vue {
-  msg!: string;
-}
+  created() {
+    const ipc = (window as any).ipc;
+    ipc?.on("forward-isCompleted", (event: any, result: any) => {
+      alert(JSON.stringify(result));
+    });
+  },
+  methods: {
+    async handleClick() {
+      const params = {
+        msgType: "media", //消息类型  text:文本消息   media:图文消息
+        scene: "session", //发送目标场景  session：会话
+        message: {
+          // 消息体
+          text: "文本消息", // 消息内容 {文本消息必传参数}
+          imageUrl:
+            "https://hwork-cdn.jsh.com/hwork_dev/cms/7af51f15addadf6fb5b202c2f60b4186.jpg", // 图片地址 {图文消息必传参数}
+          title: "测试测试WEBVIEW", // 标题 {图文消息必传参数}
+          content: "测试测试WEBVIEW", // 内容 {图文消息选传参数}
+          articleUrl:
+            "http://hwork-cdn.jsh.com/hwork_uat/html/20220928/621b477c688a4d2f96b28771345e0bee.html", // 跳转链接地址 {图文消息必传参数}
+          imageWidth: 2350, // 图片宽度 {图文消息必传参数}
+          imageHeight: 1412, // 图片高度 {图文消息必传参数}
+        },
+      };
+      const ipc = (window as any).ipc;
+      alert(JSON.stringify("1"));
+      ipc?.invoke("forward-other-win-message", params).then((result: any) => {
+        // alert(JSON.stringify(result));
+      });
+    },
+  },
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
